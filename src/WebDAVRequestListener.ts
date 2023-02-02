@@ -1,4 +1,5 @@
 import { IncomingMessage, ServerResponse, RequestListener } from "http";
+import { xml2json } from "xml-js";
 
 function methodPROPFIND(req: IncomingMessage, res: ServerResponse): void {
     return;
@@ -12,7 +13,8 @@ function methodMKCOL(req: IncomingMessage, res: ServerResponse): void {
     return;
 }
 
-function methodGET(req: IncomingMessage, res: ServerResponse): void {
+function methodGET(req: string, res: ServerResponse): void {
+    res.write(xml2json(req));
     return;
 }
 
@@ -49,7 +51,26 @@ function methodUNLOCK(req: IncomingMessage, res: ServerResponse): void {
 }
 
 let WebDAVRequestListener: RequestListener = ((req: IncomingMessage, res: ServerResponse) => {
-    res.end('Hello, world!\n');
+    let reqBody = "";
+    req.on("data", (chunk) => {
+        reqBody += chunk.toString();
+    });
+    req.on("end", () => {
+        try {
+            let reqBodyJson = xml2json(reqBody);
+            res.statusCode = 200;
+            switch(req.method) {
+                case "GET": methodGET(reqBody, res);
+                            break;
+                default:
+                            break;
+            }
+        } catch (error) {
+            res.statusCode = 400;
+            res.end("Improper XML was received.");
+        }
+        res.end();
+    });
 });
 
 export {WebDAVRequestListener};
