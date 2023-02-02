@@ -1,9 +1,0 @@
-{
-    "name": "mycal",
-    "Version": "0.1",
-    "description": "Calendar Server",
-    "homepage": "https://github.com/vishnu-ranganath/MyCal",
-    "devDependencies": {
-        "typescript": "^4.9.5"
-    }
-}
