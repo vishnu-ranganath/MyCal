@@ -34,7 +34,22 @@ function methodGET(req: IncomingMessage, res: ServerResponse): void {
 }
 
 function methodHEAD(req: IncomingMessage, res: ServerResponse): void {
-    return;
+    //Ignore message body
+    let requestedURL = new URL(req.url!, `http://${req.headers.host}`);
+    let pathName = requestedURL.pathname;
+    let path = pathName.split("/");
+    let slash = Os.platform() === "win32" ? "\\" : "/";
+    if(path[path.length - 1] === "") {
+        res.statusCode = 404;
+        res.setHeader("ContentType", "text/html");
+    } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
+        console.log(__dirname + pathName.replace(/\//g, slash));
+        res.statusCode = 404;
+        res.setHeader("ContentType", "text/html");
+    } else {
+        res.statusCode = 200;
+        res.setHeader("ContentType", "text/html");
+    }
 }
 
 function methodPOST(req: IncomingMessage, res: ServerResponse): void {
@@ -59,13 +74,15 @@ function WebDAVRequestHandler(
     res: ServerResponse
 ): void {
     switch(req.method!) {
-        case "GET": methodGET(req, res);
-                    break;
+        case "GET":     methodGET(req, res);
+                        break;
+        case "HEAD":    methodHEAD(req, res);
+                        break;
         default:
-                    break;
+                        break;
     }
     res.end();
 }
 
 export {WebDAVRequestHandler};
-export {methodGET};
+export {methodGET, methodHEAD};
