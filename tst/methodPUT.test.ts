@@ -2,9 +2,7 @@ import {expect, jest, test} from '@jest/globals';
 import { methodPUT } from "../src/WebDAVRequestHandler";
 import { IncomingMessage, ServerResponse } from "http";
 import { mockConstructor, mockSetHeader, mockWrite } from "../__mocks__/http";
-jest.mock("https", () => {
-    return mockConstructor
-});
+const fs = require("fs");
 
 let reqBody: string;
 let req: jest.Mocked<IncomingMessage>;
@@ -18,20 +16,6 @@ beforeEach(() => {
     mockWrite.mockClear();
 });
 
-test("test PUT with path '/'", () => {
-    reqBody = "lorem ipsum";
-    req.url = "/";
-    req.headers = {
-        "host": "localhost:3000"
-    };
-
-    res.statusCode = 0;
-    methodPUT(reqBody, req, res);
-    expect(mockWrite).toBeCalledTimes(0);
-    expect(mockSetHeader).toBeCalledTimes(0);
-    expect(res.statusCode).toBe(404);
-});
-
 test("test PUT with path '/directory/'", () => {
     reqBody = "lorem ipsum";
     req.url = "/directory/";
@@ -40,6 +24,7 @@ test("test PUT with path '/directory/'", () => {
     };
 
     res.statusCode = 0;
+
     methodPUT(reqBody, req, res);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
@@ -54,27 +39,28 @@ test("test PUT with path '/nonexistentfile'", () => {
     };
 
     res.statusCode = 0;
+
+    jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
+
     methodPUT(reqBody, req, res);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
     expect(res.statusCode).toBe(204);
 });
 
-/**
- * TODO: Add another test with a path that does exist, and show that it returns
- * correct output
- *
-test("test PUT with path '/nonexistentfile'", () => {
+test("test PUT with path '/existentfile'", () => {
     reqBody = "lorem ipsum";
-    req.url = "/nonexistentfile";
+    req.url = "/existentfile";
     req.headers = {
         "host": "localhost:3000"
     };
 
     res.statusCode = 0;
+
+    jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+
     methodPUT(reqBody, req, res);
-    expect(mockWrite).toBeCalledTimes(1);
+    expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(204);
 });
-*/

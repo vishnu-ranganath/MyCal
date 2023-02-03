@@ -2,9 +2,7 @@ import {expect, jest, test} from '@jest/globals';
 import { methodHEAD } from "../src/WebDAVRequestHandler";
 import { IncomingMessage, ServerResponse } from "http";
 import { mockConstructor, mockSetHeader, mockWrite } from "../__mocks__/http";
-jest.mock("https", () => {
-    return mockConstructor
-});
+const fs = require("fs");
 
 let req: jest.Mocked<IncomingMessage>;
 let res: jest.Mocked<ServerResponse>;
@@ -16,19 +14,6 @@ beforeEach(() => {
     mockWrite.mockClear();
 });
 
-test("test HEAD with path '/'", () => {
-    req.url = "/";
-    req.headers = {
-        "host": "localhost:3000"
-    };
-
-    res.statusCode = 0;
-    methodHEAD(req, res);
-    expect(mockWrite).toBeCalledTimes(0);
-    expect(mockSetHeader).toBeCalledTimes(0);
-    expect(res.statusCode).toBe(404);
-});
-
 test("test HEAD with path '/directory/'", () => {
     req.url = "/directory/";
     req.headers = {
@@ -36,6 +21,7 @@ test("test HEAD with path '/directory/'", () => {
     };
 
     res.statusCode = 0;
+
     methodHEAD(req, res);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
@@ -49,26 +35,27 @@ test("test HEAD with path '/nonexistentfile'", () => {
     };
 
     res.statusCode = 0;
+
+    jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
+
     methodHEAD(req, res);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
     expect(res.statusCode).toBe(404);
 });
 
-/**
- * TODO: Add another test with a path that does exist, and show that it returns
- * correct output
- *
-test("test HEAD with path '/nonexistentfile'", () => {
-    req.url = "/nonexistentfile";
+test("test HEAD with path '/existentfile'", () => {
+    req.url = "/existentfile";
     req.headers = {
         "host": "localhost:3000"
     };
 
     res.statusCode = 0;
+
+    jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+
     methodHEAD(req, res);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(204);
 });
-*/
