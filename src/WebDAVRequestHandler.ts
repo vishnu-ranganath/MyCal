@@ -20,16 +20,16 @@ function methodGET(req: IncomingMessage, res: ServerResponse): void {
     if(path[path.length - 1] === "") {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
-        res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>'pathName' has value:</p><p>" + pathName + "</p></body></html>")
+        res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
     } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
         console.log(__dirname + pathName.replace(/\//g, slash));
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
-        res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>'pathName' has value:</p><p>" + pathName + "</p><p>'__dirname' has value:</p><p>" + __dirname + "</p></body></html>")
+        res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
     } else {
         res.statusCode = 200;
         res.setHeader("ContentType", "text/html");
-        res.write("<html><head><title>Hello, world!</title></head><body><h1>Hello, world!</h1><p>'pathName' has value:</p><p>" + pathName + "</p></body></html>")
+        res.write("<html><head><title>Hello, world!</title></head><body><h1>Hello, world!</h1></body></html>");
     }
 }
 
@@ -41,18 +41,16 @@ function methodHEAD(req: IncomingMessage, res: ServerResponse): void {
     let slash = Os.platform() === "win32" ? "\\" : "/";
     if(path[path.length - 1] === "") {
         res.statusCode = 404;
-        res.setHeader("ContentType", "text/html");
     } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
         console.log(__dirname + pathName.replace(/\//g, slash));
         res.statusCode = 404;
-        res.setHeader("ContentType", "text/html");
     } else {
-        res.statusCode = 200;
-        res.setHeader("ContentType", "text/html");
+        res.statusCode = 204;
     }
 }
 
 function methodPOST(req: IncomingMessage, res: ServerResponse): void {
+    // It is undecided as to whether this method will be implemented
     return;
 }
 
@@ -79,6 +77,7 @@ function WebDAVRequestHandler(
         case "HEAD":    methodHEAD(req, res);
                         break;
         default:
+                        res.statusCode = 400;
                         break;
     }
     res.end();
