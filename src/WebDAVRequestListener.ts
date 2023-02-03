@@ -14,7 +14,7 @@ let WebDAVRequestListener: RequestListener = ((req: IncomingMessage, res: Server
         }
         WebDAVRequestHandler(
             reqBody,
-            req.method!,
+            req,
             res
         );
     });
