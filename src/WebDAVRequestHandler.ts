@@ -1,10 +1,35 @@
 import { IncomingMessage, ServerResponse, RequestListener } from "http";
-import { xml2json } from "xml-js";
+import { Element, ElementCompact, xml2js } from "xml-js";
 import {existsSync} from "fs";
 import Os from "os";
 
-function methodPROPFIND(req: IncomingMessage, res: ServerResponse): void {
-    return;
+function getPathName(req: IncomingMessage): string {
+    let pathName = new URL(req.url!, `http://${req.headers.host}`).pathname;
+    let slash = Os.platform() == "win32" ? "\\" : "/";
+    pathName = pathName.replace(/\//g, slash);
+    if(pathName.length == 0) {
+        return slash;
+    }
+    return pathName;
+}
+
+function methodPROPFIND(reqBody:string, req: IncomingMessage, res: ServerResponse): void {
+    /*
+    let pathName = getPathName(req);
+    if(!existsSync(__dirname + pathName)) {
+        res.statusCode = 404;
+        return;
+    }
+    let reqXML: Element | ElementCompact;
+    try {
+        reqXML = xml2js(reqBody);
+    } catch(error) {
+        res.statusCode = 400;
+        return;
+    }
+    res.statusCode = 204;
+    */
+   return;
 }
 
 function methodPROPPATCH(req: IncomingMessage, res: ServerResponse): void {
@@ -13,16 +38,12 @@ function methodPROPPATCH(req: IncomingMessage, res: ServerResponse): void {
 
 function methodGET(req: IncomingMessage, res: ServerResponse): void {
     //Ignore message body
-    let requestedURL = new URL(req.url!, `http://${req.headers.host}`);
-    let pathName = requestedURL.pathname;
-    let path = pathName.split("/");
-    let slash = Os.platform() === "win32" ? "\\" : "/";
-    if(path[path.length - 1] === "") {
+    let pathName = getPathName(req);
+    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
-    } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
-        console.log(__dirname + pathName.replace(/\//g, slash));
+    } else if(!existsSync(__dirname + pathName)) {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
@@ -35,14 +56,10 @@ function methodGET(req: IncomingMessage, res: ServerResponse): void {
 
 function methodHEAD(req: IncomingMessage, res: ServerResponse): void {
     //Ignore message body
-    let requestedURL = new URL(req.url!, `http://${req.headers.host}`);
-    let pathName = requestedURL.pathname;
-    let path = pathName.split("/");
-    let slash = Os.platform() === "win32" ? "\\" : "/";
-    if(path[path.length - 1] === "") {
+    let pathName = getPathName(req);
+    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
-    } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
-        console.log(__dirname + pathName.replace(/\//g, slash));
+    } else if(!existsSync(__dirname + pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
@@ -56,14 +73,10 @@ function methodPOST(req: IncomingMessage, res: ServerResponse): void {
 
 function methodDELETE(req: IncomingMessage, res: ServerResponse): void {
     //Ignore message body
-    let requestedURL = new URL(req.url!, `http://${req.headers.host}`);
-    let pathName = requestedURL.pathname;
-    let path = pathName.split("/");
-    let slash = Os.platform() === "win32" ? "\\" : "/";
-    if(path[path.length - 1] === "") {
+    let pathName = getPathName(req);
+    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
-    } else if(!existsSync(__dirname + pathName.replace(/\//g, slash))) {
-        console.log(__dirname + pathName.replace(/\//g, slash));
+    } else if(!existsSync(__dirname + pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
@@ -71,10 +84,8 @@ function methodDELETE(req: IncomingMessage, res: ServerResponse): void {
 }
 
 function methodPUT(reqBody: string, req: IncomingMessage, res: ServerResponse): void {
-    let requestedURL = new URL(req.url!, `http://${req.headers.host}`);
-    let pathName = requestedURL.pathname;
-    let path = pathName.split("/");
-    if(path[path.length - 1] === "") {
+    let pathName = getPathName(req);
+    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
     }  else {
         res.statusCode = 204;
@@ -107,4 +118,4 @@ function WebDAVRequestHandler(
 }
 
 export {WebDAVRequestHandler};
-export {methodGET, methodHEAD, methodDELETE, methodPUT};
+export {methodPROPFIND, methodGET, methodHEAD, methodDELETE, methodPUT};
