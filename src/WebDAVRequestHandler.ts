@@ -1,21 +1,15 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Element, ElementCompact, xml2js } from "xml-js";
-import { existsSync } from "fs";
-import Os from "os";
+import { AbstractFileAccess } from "./AbstractFileAccess";
 
-function getPathName(req: IncomingMessage): string {
-    let pathName = new URL(req.url!, `http://${req.headers.host}`).pathname;
-    let slash = Os.platform() == "win32" ? "\\" : "/";
-    pathName = pathName.replace(/\//g, slash);
-    if(pathName.length == 0) {
-        return slash;
-    }
-    return pathName;
-}
-
-function methodPROPFIND(reqBody:string, req: IncomingMessage, res: ServerResponse): void {
-    let pathName = getPathName(req);
-    if(!existsSync(__dirname + pathName)) {
+function methodPROPFIND(
+    reqBody:string,
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
+    let pathName = fa.getPathName(req);
+    if(!fa.isDirectory(__dirname + pathName) && !fa.isFile(__dirname + pathName)) {
         res.statusCode = 404;
         return;
     }
@@ -68,18 +62,22 @@ function methodPROPFIND(reqBody:string, req: IncomingMessage, res: ServerRespons
     }
 }
 
-function methodPROPPATCH(req: IncomingMessage, res: ServerResponse): void {
+function methodPROPPATCH(
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
     return;
 }
 
-function methodGET(req: IncomingMessage, res: ServerResponse): void {
+function methodGET(
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
     //Ignore message body
-    let pathName = getPathName(req);
-    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
-        res.statusCode = 404;
-        res.setHeader("ContentType", "text/html");
-        res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
-    } else if(!existsSync(__dirname + pathName)) {
+    let pathName = fa.getPathName(req);
+    if (!fa.isFile(__dirname + pathName)) {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
@@ -90,37 +88,50 @@ function methodGET(req: IncomingMessage, res: ServerResponse): void {
     }
 }
 
-function methodHEAD(req: IncomingMessage, res: ServerResponse): void {
+function methodHEAD(
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
     //Ignore message body
-    let pathName = getPathName(req);
-    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
-        res.statusCode = 404;
-    } else if(!existsSync(__dirname + pathName)) {
+    let pathName = fa.getPathName(req);
+    if(!fa.isFile(__dirname + pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
     }
 }
 
-function methodPOST(req: IncomingMessage, res: ServerResponse): void {
+function methodPOST(
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
     // It is undecided as to whether this method will be implemented
     return;
 }
 
-function methodDELETE(req: IncomingMessage, res: ServerResponse): void {
+function methodDELETE(
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
     //Ignore message body
-    let pathName = getPathName(req);
-    if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
-        res.statusCode = 404;
-    } else if(!existsSync(__dirname + pathName)) {
+    let pathName = fa.getPathName(req);
+    if(!fa.isFile(__dirname + pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
     }
 }
 
-function methodPUT(reqBody: string, req: IncomingMessage, res: ServerResponse): void {
-    let pathName = getPathName(req);
+function methodPUT(
+    reqBody: string,
+    req: IncomingMessage,
+    res: ServerResponse,
+    fa: AbstractFileAccess
+): void {
+    let pathName = fa.getPathName(req);
     if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
     }  else {
@@ -128,33 +139,37 @@ function methodPUT(reqBody: string, req: IncomingMessage, res: ServerResponse): 
     }
 }
 
-function methodOPTIONS(req: IncomingMessage, res: ServerResponse): void {
+function methodOPTIONS(
+    req: IncomingMessage,
+    res: ServerResponse
+): void {
     return;
 }
 
 function WebDAVRequestHandler(
     reqBody: string,
     req: IncomingMessage,
-    res: ServerResponse
+    res: ServerResponse,
+    fa: AbstractFileAccess
 ): void {
     switch(req.method!) {
         case "PROPFIND":
-            methodPROPFIND(reqBody, req, res);
+            methodPROPFIND(reqBody, req, res, fa);
             break;
         case "GET":
-            methodGET(req, res);
+            methodGET(req, res, fa);
             break;
         case "HEAD":
-            methodHEAD(req, res);
+            methodHEAD(req, res, fa);
             break;
         case "DELETE":
-            methodDELETE(req, res);
+            methodDELETE(req, res, fa);
             break;
         case "PUT":
-            methodPUT(reqBody, req, res);
+            methodPUT(reqBody, req, res, fa);
             break;
         default:
-            res.statusCode = 400;
+            res.statusCode = 501;
             break;
     }
     res.end();

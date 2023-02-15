@@ -2,16 +2,18 @@ import {expect, jest, test} from '@jest/globals';
 import { methodPUT } from "../src/WebDAVRequestHandler";
 import { IncomingMessage, ServerResponse } from "http";
 import { mockConstructor, mockSetHeader, mockWrite } from "../__mocks__/http";
-const fs = require("fs");
+import { LocalFileAccess } from '../src/LocalFileAccess';
 
 let reqBody: string;
 let req: jest.Mocked<IncomingMessage>;
 let res: jest.Mocked<ServerResponse>;
+let fa: LocalFileAccess
 
 beforeEach(() => {
     reqBody = "";
     res = mockConstructor();
     req = mockConstructor();
+    fa = new LocalFileAccess();
     mockSetHeader.mockClear();
     mockWrite.mockClear();
 });
@@ -22,10 +24,9 @@ test("test PUT with path '/directory/'", () => {
     req.headers = {
         "host": "localhost:3000"
     };
-
     res.statusCode = 0;
 
-    methodPUT(reqBody, req, res);
+    methodPUT(reqBody, req, res, fa);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
     expect(res.statusCode).toBe(404);
@@ -37,12 +38,10 @@ test("test PUT with path '/nonexistentfile'", () => {
     req.headers = {
         "host": "localhost:3000"
     };
-
     res.statusCode = 0;
+    jest.spyOn(fa, "isFile").mockReturnValueOnce(false);
 
-    jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
-
-    methodPUT(reqBody, req, res);
+    methodPUT(reqBody, req, res, fa);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
     expect(res.statusCode).toBe(204);
@@ -54,12 +53,10 @@ test("test PUT with path '/existentfile'", () => {
     req.headers = {
         "host": "localhost:3000"
     };
-
     res.statusCode = 0;
+    jest.spyOn(fa, "isFile").mockReturnValueOnce(true);
 
-    jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-
-    methodPUT(reqBody, req, res);
+    methodPUT(reqBody, req, res, fa);
     expect(mockWrite).toBeCalledTimes(0);
     expect(mockSetHeader).toBeCalledTimes(0);
     expect(res.statusCode).toBe(204);

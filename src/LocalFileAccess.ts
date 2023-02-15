@@ -1,6 +1,7 @@
 import { AbstractFileAccess } from "./AbstractFileAccess";
 import { IncomingMessage } from "http";
 import Os from "os";
+import { lstatSync } from "fs";
 
 export class LocalFileAccess extends AbstractFileAccess {
 
@@ -14,12 +15,22 @@ export class LocalFileAccess extends AbstractFileAccess {
         return pathName;
     }
 
-    pathExists(path: string): boolean {
-        return false;
+    isFile(path: string): boolean {
+        try {
+            let h = lstatSync(path);
+            return h.isFile();
+        } catch(e) {
+            return false;
+        }
     }
 
     isDirectory(path: string): boolean {
-        return false;
+        try {
+            let h = lstatSync(path);
+            return h.isDirectory();
+        } catch(e) {
+            return false;
+        }
     }
 
 }
