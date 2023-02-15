@@ -1,6 +1,6 @@
 import { AbstractFileAccess } from "./AbstractFileAccess";
 import Os from "os";
-import { lstatSync } from "fs";
+import { lstatSync, readFileSync } from "fs";
 
 export class LocalFileAccess extends AbstractFileAccess {
 
@@ -37,6 +37,10 @@ export class LocalFileAccess extends AbstractFileAccess {
         } catch(e) {
             return false;
         }
+    }
+
+    readFile(path: string): string {
+        return readFileSync(path).toString();
     }
 
 }

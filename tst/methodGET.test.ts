@@ -37,9 +37,11 @@ test("test GET with path '/existentfile'", () => {
     };
     res.statusCode = 0;
     jest.spyOn(fa, "isFile").mockReturnValueOnce(true);
+    jest.spyOn(fa, "readFile").mockReturnValueOnce("testing123");
 
     methodGET(req, res, fa);
     expect(mockWrite).toBeCalledTimes(1);
+    expect(mockWrite).toHaveBeenCalledWith("testing123");
     expect(mockSetHeader).toBeCalledTimes(1);
     expect(res.statusCode).toBe(200);
 });

@@ -81,10 +81,16 @@ function methodGET(
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
-    } else {
+        return;
+    }
+    try {
+        let fileContents = fa.readFile(pathName);
         res.statusCode = 200;
         res.setHeader("ContentType", "text/html");
-        res.write("<html><head><title>Hello, world!</title></head><body><h1>Hello, world!</h1></body></html>");
+        res.write(fileContents);
+    } catch(e) {
+        res.statusCode = 500;
+        res.setHeader("ContentType", "text/html");
     }
 }
 
