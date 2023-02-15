@@ -6,5 +6,6 @@ export abstract class AbstractFileAccess {
     abstract isFile(path: string): boolean;
     abstract isDirectory(path: string): boolean;
     abstract readFile(path: string): string;
+    abstract writeFile(path: string, contents: string): void;
 
 }

@@ -77,7 +77,10 @@ function methodGET(
 ): void {
     //Ignore message body
     let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
-    if (!fa.isFile(pathName)) {
+    if(fa.isDirectory(pathName)) {
+        res.statusCode = 403;
+        return;
+    } else if (!fa.isFile(pathName)) {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
@@ -101,7 +104,9 @@ function methodHEAD(
 ): void {
     //Ignore message body
     let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
-    if(!fa.isFile(pathName)) {
+    if (fa.isDirectory(pathName)) {
+        res.statusCode = 503;
+    } else if(!fa.isFile(pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
@@ -140,8 +145,16 @@ function methodPUT(
     let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
     if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
-    }  else {
+        return;
+    } else if(fa.isDirectory(pathName)) {
+        res.statusCode = 403;
+        return;
+    }
+    try {
+        fa.writeFile(pathName, reqBody);
         res.statusCode = 204;
+    } catch(e) {
+        res.statusCode = 500;
     }
 }
 

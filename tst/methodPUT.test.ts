@@ -55,6 +55,9 @@ test("test PUT with path '/existentfile'", () => {
     };
     res.statusCode = 0;
     jest.spyOn(fa, "isFile").mockReturnValueOnce(true);
+    jest.spyOn(fa, "writeFile").mockImplementationOnce((path: string, contents: string) => {
+        return
+    })
 
     methodPUT(reqBody, req, res, fa);
     expect(mockWrite).toBeCalledTimes(0);
