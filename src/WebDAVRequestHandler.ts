@@ -131,8 +131,15 @@ function methodDELETE(
     let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
     if(!fa.isFile(pathName)) {
         res.statusCode = 404;
-    } else {
+        return;
+    }
+    try {
+        fa.deleteFile(pathName);
         res.statusCode = 204;
+        return;
+    } catch(e) {
+        res.statusCode = 500;
+        return;
     }
 }
 
@@ -153,8 +160,10 @@ function methodPUT(
     try {
         fa.writeFile(pathName, reqBody);
         res.statusCode = 204;
+        return;
     } catch(e) {
         res.statusCode = 500;
+        return;
     }
 }
 

@@ -37,6 +37,9 @@ test("test DELETE with path '/existentfile'", () => {
     };
     res.statusCode = 0;
     jest.spyOn(fa, "isFile").mockReturnValueOnce(true);
+    jest.spyOn(fa, "deleteFile").mockImplementationOnce((path: string) => {
+        return;
+    })
 
     methodDELETE(req, res, fa);
     expect(mockWrite).toBeCalledTimes(0);

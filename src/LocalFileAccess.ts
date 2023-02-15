@@ -1,6 +1,6 @@
 import { AbstractFileAccess } from "./AbstractFileAccess";
 import Os from "os";
-import { lstatSync, readFileSync, writeFileSync } from "fs";
+import { lstatSync, readFileSync, rmSync, writeFileSync } from "fs";
 
 export class LocalFileAccess extends AbstractFileAccess {
 
@@ -9,6 +9,14 @@ export class LocalFileAccess extends AbstractFileAccess {
     constructor(homeDir: string) {
         super();
         this.homeDir = homeDir;
+    }
+
+    deleteFile(path: string): void {
+        try {
+            rmSync(path);
+        } catch(e) {
+            return;
+        }
     }
 
     getFullPath(url: string, host: string): string {
