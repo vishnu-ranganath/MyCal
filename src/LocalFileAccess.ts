@@ -1,18 +1,24 @@
 import { AbstractFileAccess } from "./AbstractFileAccess";
-import { IncomingMessage } from "http";
 import Os from "os";
 import { lstatSync } from "fs";
 
 export class LocalFileAccess extends AbstractFileAccess {
 
-    getPathName(req: IncomingMessage): string {
-        let pathName = new URL(req.url!, `http://${req.headers.host}`).pathname;
+    homeDir: string;
+
+    constructor(homeDir: string) {
+        super();
+        this.homeDir = homeDir;
+    }
+
+    getFullPath(url: string, host: string): string {
+        let pathName = new URL(url, host).pathname;
         let slash = Os.platform() == "win32" ? "\\" : "/";
         pathName = pathName.replace(/\//g, slash);
         if(pathName.length == 0) {
-            return slash;
+            return this.homeDir + slash;
         }
-        return pathName;
+        return this.homeDir + pathName;
     }
 
     isFile(path: string): boolean {

@@ -11,7 +11,7 @@ let fa: LocalFileAccess;
 beforeEach(() => {
     res = mockConstructor();
     req = mockConstructor();
-    fa = new LocalFileAccess();
+    fa = new LocalFileAccess("");
     mockSetHeader.mockClear();
     mockWrite.mockClear();
 });

@@ -8,8 +8,8 @@ function methodPROPFIND(
     res: ServerResponse,
     fa: AbstractFileAccess
 ): void {
-    let pathName = fa.getPathName(req);
-    if(!fa.isDirectory(__dirname + pathName) && !fa.isFile(__dirname + pathName)) {
+    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
+    if(!fa.isDirectory(pathName) && !fa.isFile(pathName)) {
         res.statusCode = 404;
         return;
     }
@@ -76,8 +76,8 @@ function methodGET(
     fa: AbstractFileAccess
 ): void {
     //Ignore message body
-    let pathName = fa.getPathName(req);
-    if (!fa.isFile(__dirname + pathName)) {
+    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
+    if (!fa.isFile(pathName)) {
         res.statusCode = 404;
         res.setHeader("ContentType", "text/html");
         res.write("<html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>");
@@ -94,8 +94,8 @@ function methodHEAD(
     fa: AbstractFileAccess
 ): void {
     //Ignore message body
-    let pathName = fa.getPathName(req);
-    if(!fa.isFile(__dirname + pathName)) {
+    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
+    if(!fa.isFile(pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
@@ -117,8 +117,8 @@ function methodDELETE(
     fa: AbstractFileAccess
 ): void {
     //Ignore message body
-    let pathName = fa.getPathName(req);
-    if(!fa.isFile(__dirname + pathName)) {
+    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
+    if(!fa.isFile(pathName)) {
         res.statusCode = 404;
     } else {
         res.statusCode = 204;
@@ -131,7 +131,7 @@ function methodPUT(
     res: ServerResponse,
     fa: AbstractFileAccess
 ): void {
-    let pathName = fa.getPathName(req);
+    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
     if(pathName[pathName.length - 1] === "/" || pathName[pathName.length - 1] == "\\") {
         res.statusCode = 404;
     }  else {

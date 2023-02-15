@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse, RequestListener } from "http";
 import { AbstractFileAccess } from "./src/AbstractFileAccess";
 import { LocalFileAccess } from "./src/LocalFileAccess";
 import { WebDAVRequestHandler } from "./src/WebDAVRequestHandler";
+import { homeDir } from "./serverConfig";
 
 const http = require('http');
 const fs = require('fs');
@@ -17,7 +18,7 @@ const WebDAVRequestListener: RequestListener = ((req: IncomingMessage, res: Serv
             res.end("No Method found\n");
             return;
         }
-        let fileAccess: AbstractFileAccess = new LocalFileAccess();
+        let fileAccess: AbstractFileAccess = new LocalFileAccess(homeDir);
         WebDAVRequestHandler(
             reqBody,
             req,
