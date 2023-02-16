@@ -2,18 +2,53 @@ import { IncomingMessage, ServerResponse, STATUS_CODES } from "http";
 import { Element, ElementCompact, xml2js, js2xml } from "xml-js";
 import { AbstractFileAccess } from "./AbstractFileAccess";
 
-const protectedDefaultProperties = [
-    "creationdate",
-    "getcontenttype",
-    "getetag",
-    "getlastmodified",
-    "getresourcetype"
-];
+const protectedDefaultProperties = {
+    "creationdate": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    },
+    "getcontenttype": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    },
+    "getetag": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    },
+    "getlastmodified": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    },
+    "getresourcetype": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    }
+};
 
-const unprotectedProperties = [
-    "displayname",
-    "getcontentlanguage"
-];
+const unprotectedProperties = {
+    "displayname": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    },
+    "getcontentlanguage": (pathName: string, fa: AbstractFileAccess) : {e: Element[], code: number} => {
+        return {
+            "e": [],
+            "code": 400
+        };
+    }
+};
 
 export function methodPROPFIND(
     reqBody:string,
