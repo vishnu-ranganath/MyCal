@@ -19,6 +19,7 @@ const WebDAVRequestListener: RequestListener = ((req: IncomingMessage, res: Serv
             return;
         }
         let fileAccess: AbstractFileAccess = new LocalFileAccess(homeDir);
+        console.log(req.method! + " request for '" + req.url! + "' with headers '" + JSON.stringify(req.headers) + "' and body '" + reqBody + "'");
         WebDAVRequestHandler(
             reqBody,
             req,

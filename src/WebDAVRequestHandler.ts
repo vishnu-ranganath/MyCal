@@ -1,66 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { Element, ElementCompact, xml2js } from "xml-js";
+import { methodPROPFIND } from "./methodPROPFIND";
 import { AbstractFileAccess } from "./AbstractFileAccess";
-
-function methodPROPFIND(
-    reqBody:string,
-    req: IncomingMessage,
-    res: ServerResponse,
-    fa: AbstractFileAccess
-): void {
-    let pathName = fa.getFullPath(req.url!, `http://${req.headers.host}`);
-    if(!fa.isDirectory(pathName) && !fa.isFile(pathName)) {
-        res.statusCode = 404;
-        return;
-    }
-    let reqXML: Element | ElementCompact;
-    try {
-        reqXML = xml2js(reqBody);
-    } catch(error) {
-        res.statusCode = 400;
-        return;
-    }
-
-    if(reqXML.elements === undefined || reqXML.elements.length != 1) {
-        res.statusCode = 400;
-        return;
-    }
-    let root: Element = reqXML.elements[0];
-
-    if(root.type! !== "element" || root.name!.split(":").length != 2) {
-        res.statusCode = 400;
-        return;
-    }
-    let davNamespace = root.name!.split(":")[0];
-    if(root.attributes!["xmlns:" + davNamespace] === undefined || root.name !== davNamespace + ":propfind") {
-        res.statusCode = 400;
-        return;
-    }
-
-    if(root.elements === undefined || root.elements.length == 0 || root.elements.length > 2) {
-        res.statusCode = 400;
-        return;
-    }
-    let queryTypeElement: Element = root.elements[0];
-    if(queryTypeElement.type! !== "element") {
-        res.statusCode = 400;
-        return;
-    }
-
-    if(queryTypeElement.name == davNamespace + ":prop" && root.elements.length === 1) {
-        res.statusCode = 204;
-        return;
-    } else if(queryTypeElement.name == davNamespace + ":propname" && root.elements.length === 1) {
-        res.statusCode = 204;
-        return;
-    } else if(queryTypeElement.name == davNamespace + ":allprop") {
-        res.statusCode = 204;
-        return;
-    } else {
-        res.statusCode = 400;
-        return;
-    }
-}
 
 function methodPROPPATCH(
     req: IncomingMessage,
@@ -204,4 +144,4 @@ function WebDAVRequestHandler(
 }
 
 export {WebDAVRequestHandler};
-export {methodPROPFIND, methodGET, methodHEAD, methodDELETE, methodPUT};
+export {methodGET, methodHEAD, methodDELETE, methodPUT};

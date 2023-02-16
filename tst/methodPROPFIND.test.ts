@@ -1,5 +1,5 @@
 import {expect, jest, test} from '@jest/globals';
-import { methodPROPFIND } from "../src/WebDAVRequestHandler";
+import { methodPROPFIND } from "../src/methodPROPFIND";
 import { IncomingMessage, ServerResponse } from "http";
 import { mockConstructor, mockSetHeader, mockWrite } from "../__mocks__/http";
 import { LocalFileAccess } from '../src/LocalFileAccess';
@@ -81,7 +81,5 @@ test("test PROPFIND with path '/existentfile' and legal propfind request", () =>
     jest.spyOn(fa, "isDirectory").mockReturnValueOnce(true);
 
     methodPROPFIND(reqBody, req, res, fa);
-    expect(mockWrite).toBeCalledTimes(0);
-    expect(mockSetHeader).toBeCalledTimes(0);
-    expect(res.statusCode).toBe(204);
+    expect(res.statusCode).toBe(207);
 });
